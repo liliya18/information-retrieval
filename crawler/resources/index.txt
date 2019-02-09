@@ -1,0 +1,15 @@
+https://learn.javascript.ru/js
+https://learn.javascript.ru/about
+https://learn.javascript.ru/privacy
+https://learn.javascript.ru/terms
+https://learn.javascript.ru/about#contact-us
+https://learn.javascript.ru/profile/igor-nepipenko
+https://learn.javascript.ru/courses/angular
+https://learn.javascript.ru/courses/angular/feedback
+https://learn.javascript.ru/courses
+https://learn.javascript.ru/newsletter
+https://learn.javascript.ru/tutorial/map
+https://learn.javascript.ru/regexp-specials
+https://learn.javascript.ru/extra
+https://learn.javascript.ru/regular-expressions-javascript
+https://learn.javascript.ru/tools
