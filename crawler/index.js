@@ -1,3 +1,3 @@
 const Crawler = require('./Crawler');
 
-const crawler = Crawler('https://learn.javascript.ru/js', 15);
+const crawler = Crawler('https://tass.ru', 100);
