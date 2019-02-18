@@ -77,10 +77,10 @@ const saveText = (name, text) => {
         console.log(`Создан файл ${name}.txt`);
     });
 
-    const textArray = trimmedText.split(' ');
+    const textArray = trimmedText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '').split(' ');
     textArray.map(value => {
         let stemmingWord = natural.PorterStemmerRu.stem(value);
-        stemmingWord = `${stemmingWord}  `;
+        stemmingWord = `${stemmingWord}\t`;
         fs.appendFile(`${stemmingTextsFolderPath}/${name}.txt`, stemmingWord, (error, file) => {
             if (error) throw error;
         });
