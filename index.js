@@ -1,7 +1,12 @@
-// require('./TextPreprocessing/index');
+// const crawler = require('./TextPreprocessing/index');
+// const init = crawler('https://tass.ru');
 
-// require('./InvertedIndex/index.js');
+// const invertedIndex = require('./InvertedIndex/index.js');
+// const init = invertedIndex();
 
-// require('./BooleanSearch/index.js');
+// const booleanSearch = require('./BooleanSearch/index.js');
+// const args = process.argv.slice(2);
+// const init = booleanSearch(args);
 
-require('./TfIdf/index.js');
+const tfIdf = require('./TfIdf/index.js');
+const init = tfIdf();
