@@ -1,5 +1,5 @@
 // const crawler = require('./TextPreprocessing/index');
-// const init = crawler('https://tass.ru');
+// const init = crawler('https://ria.ru/');
 
 // const invertedIndex = require('./InvertedIndex/index.js');
 // const init = invertedIndex();

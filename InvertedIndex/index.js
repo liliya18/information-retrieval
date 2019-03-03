@@ -12,6 +12,9 @@ const invertedIndex = () => {
         const fileName = file.split('.')[0];
         const words = content.split('\t');
         words.map(word => {
+            if (word === '') {
+                return;
+            }
             if (!index[word]) {
                 index[word] = Array(100).fill(0);
             }

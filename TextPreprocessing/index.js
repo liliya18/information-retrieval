@@ -71,13 +71,13 @@ const saveLink = (url) => {
 }
 
 const saveText = (name, text) => {
-    const trimmedText = text.replace(/\s\s+/g, ' ');
+    const trimmedText = text.replace(/\s\s+/g, ' ').replace(/\d/g, '').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
     fs.appendFile(`${crawlerTextsFolderPath}/${name}.txt`, trimmedText, (error, file) => {
         if (error) throw error;
         console.log(`Создан файл ${name}.txt`);
     });
 
-    const textArray = trimmedText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '').split(' ');
+    const textArray = trimmedText.split(' ');
     textArray.map(value => {
         let stemmingWord = natural.PorterStemmerRu.stem(value);
         stemmingWord = `${stemmingWord}\t`;

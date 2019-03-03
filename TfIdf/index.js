@@ -15,7 +15,10 @@ const tfIdf = () => {
         const content = fs.readFileSync(directoryPath + file, 'utf-8');
         const words = content.split('\t');
         tfidf.addDocument(content);
-        words.forEach((word) => {
+        words.map(word => {
+            if (word === '') {
+                return;
+            }
             if (!index[word]) {
                 index[word] = Array(100).fill(0);
             }
