@@ -2,6 +2,7 @@ const fs = require('fs');
 const natural = require('natural');
 
 const indexFilePath = './InvertedIndex/resources/index.txt';
+const linksFilePath = './TextPreprocessing/resources/crawler/index.txt'
 
 const booleanSearch = keywords => {
     const index = {};
@@ -48,12 +49,26 @@ const searchResult = (array, size) => {
     const duplicates = dict =>
         Object.keys(dict).filter((a) => dict[a] === size);
 
-    const result = duplicates(count(array));
+    const result = getLink(duplicates(count(array)));
     if (result.length) {
-        console.log(result.join(' '));
+        console.log(result.join('\n'));
     } else {
         console.log('Ничего не найдено');
     }
+}
+
+const getLink = (numbers) => {
+    const linksFileContent = fs.readFileSync(linksFilePath, 'utf8');
+    const lines = linksFileContent.split('\n');
+    let searchResult = [];
+    lines.forEach((line, i) => {
+        numbers.map(number => {
+            if (i === parseInt(number)) {
+                searchResult.push(lines[i]);
+            }
+        });
+    });
+    return searchResult;
 }
 
 module.exports = booleanSearch;
