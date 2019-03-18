@@ -16,13 +16,13 @@ let visitedPagesCount = 0;
 
 let baseUrl;
 
-const crawler = (URL) => {
+const crawler = URL => {
     const url = new urlParser(URL);
     baseUrl = url.protocol + "//" + url.hostname;
     pagesToVisit.push(URL);
 
     crawl();
-}
+};
 
 const crawl = () => {
     if (visitedPagesCount >= maxPagesToVisit) {
@@ -35,7 +35,7 @@ const crawl = () => {
     } else {
         visitPage(nextPage, crawl);
     }
-}
+};
 
 const visitPage = (url, callback) => {
     pagesVisited[url] = true;
@@ -60,18 +60,18 @@ const visitPage = (url, callback) => {
         collectInternalLinks($);
         callback();
     });
-}
+};
 
-const saveLink = (url) => {
+const saveLink = url => {
     const link = url + '\n';
     fs.appendFile(indexFilePath, link, (error, file) => {
         if (error) throw error;
         console.log(`Добавлена ссылка ${url}`);
     });
-}
+};
 
 const saveText = (name, text) => {
-    const trimmedText = text.replace(/\s\s+/g, ' ').replace(/\d/g, '').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+    const trimmedText = text.replace(/\s\s+/g, ' ').replace(/\d/g, '').replace(/[~`’!@#$%^&*(){}\[\];:"'<,.>?\/\\|_+=-]/g, '');
     fs.appendFile(`${crawlerTextsFolderPath}/${name}.txt`, trimmedText, (error, file) => {
         if (error) throw error;
         console.log(`Создан файл ${name}.txt`);
@@ -85,14 +85,14 @@ const saveText = (name, text) => {
             if (error) throw error;
         });
     })
-}
+};
 
-const collectInternalLinks = ($) => {
+const collectInternalLinks = $ => {
     const relativeLinks = $('a[href^="/"]');
     relativeLinks.each(function () {
         const url = baseUrl + $(this).attr('href');
         pagesToVisit.push(url);
     });
-}
+};
 
 module.exports = crawler;

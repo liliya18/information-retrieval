@@ -32,13 +32,13 @@ const tfIdf = () => {
 };
 
 const createIndexFile = content => {
-    words = Object.keys(content);
+    const words = Object.keys(content);
     words.map(word => {
         const row = word + '\t' + content[word].join(' ') + '\n';
         fs.appendFile(indexFilePath, row, 'utf8', (error, file) => {
             if (error) throw error;
         });
     })
-}
+};
 
 module.exports = tfIdf;
