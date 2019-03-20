@@ -11,6 +11,9 @@
 // const tfIdf = require('./TfIdf/index.js');
 // const init = tfIdf();
 
-const search = require('./Search/index.js');
-const args = process.argv.slice(2);
-const init = search(args);
+// const search = require('./Search/index.js');
+// const args = process.argv.slice(2);
+// const init = search(args);
+
+const pageRank = require('./PageRank/index.js');
+const init = pageRank();
