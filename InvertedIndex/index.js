@@ -18,7 +18,7 @@ const invertedIndex = () => {
             if (!index[word]) {
                 index[word] = Array(100).fill(0);
             }
-            index[word] = Object.assign([], index[word], { [fileName - 1]: 1 });
+            index[word] = Object.assign([], index[word], { [fileName]: 1 });
         })
     });
 

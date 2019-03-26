@@ -4,25 +4,30 @@ const cheerio = require('cheerio');
 const urlParser = require('url-parse');
 
 const indexFilePath = 'TextPreprocessing/resources/crawler/index.txt';
-const pageRankIndexFilePath = 'PageRank/resources/index.txt';
+const pageRankIndexFilePath = 'PageRank/resources/index.json';
 
 let baseUrl;
 const links = {};
 
 const pageRank = () => {
+    getLinksInPages();
+};
+
+const getLinksInPages = () => {
     const url = new urlParser('https://ria.ru/');
     baseUrl = url.protocol + "//" + url.hostname;
 
     const indexFileContent = fs.readFileSync(indexFilePath, 'utf8');
-    const lines = indexFileContent.split('\n').slice(0, -1);
+    const lines = indexFileContent.split('\n');
     lines.map(line => {
+        if (line === '') return;
         visitPage(line);
     });
 
     Object.keys(links).map(indexLink => {
         const index = lines.indexOf(indexLink);
         if (index !== -1) {
-            links[index + 1] = links[indexLink];
+            links[index] = links[indexLink];
             delete links[indexLink]
         }
     });
@@ -31,7 +36,7 @@ const pageRank = () => {
         links[indexLink].forEach((link, i) => {
             const index = lines.indexOf(link);
             if (index !== -1) {
-                links[indexLink][i] = index + 1;
+                links[indexLink][i] = index;
             }
         });
 

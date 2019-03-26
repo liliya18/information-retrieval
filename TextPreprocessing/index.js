@@ -55,8 +55,8 @@ const visitPage = (url, callback) => {
             return (this.type === 'text') ? $(this).text() + ' ' : '';
         }).get().join('');
 
-        saveLink(url)
-        saveText(visitedPagesCount, text)
+        saveLink(url);
+        saveText(visitedPagesCount - 1, text);
         collectInternalLinks($);
         callback();
     });
@@ -71,7 +71,7 @@ const saveLink = url => {
 };
 
 const saveText = (name, text) => {
-    const trimmedText = text.replace(/\s\s+/g, ' ').replace(/\d/g, '').replace(/[~`’!@#$%^&*(){}\[\];:"'<,.>?\/\\|_+=-]/g, '');
+    const trimmedText = text.replace(/\s\s+/g, ' ').replace(/\d/g, '').replace(/[~`’!@#$%^&*(){}\[\];:"'«»<,.>?\/\\|_—+=-]/g, '');
     fs.appendFile(`${crawlerTextsFolderPath}/${name}.txt`, trimmedText, (error, file) => {
         if (error) throw error;
         console.log(`Создан файл ${name}.txt`);

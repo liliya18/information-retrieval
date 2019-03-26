@@ -30,7 +30,7 @@ const booleanSearch = keywords => {
     });
 
     searchResult(result, stemmedKeywords.length);
-}
+};
 
 const stemKeywords = keywords => {
     let stemWords = [];
@@ -38,7 +38,7 @@ const stemKeywords = keywords => {
         stemWords.push(natural.PorterStemmerRu.stem(keyword));
     });
     return stemWords;
-}
+};
 
 const searchResult = (array, size) => {
     const count = array =>
@@ -55,7 +55,7 @@ const searchResult = (array, size) => {
     } else {
         console.log('Ничего не найдено');
     }
-}
+};
 
 const getLink = (numbers) => {
     const linksFileContent = fs.readFileSync(linksFilePath, 'utf8');
@@ -69,6 +69,6 @@ const getLink = (numbers) => {
         });
     });
     return searchResult;
-}
+};
 
 module.exports = booleanSearch;
