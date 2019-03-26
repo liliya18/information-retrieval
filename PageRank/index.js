@@ -5,12 +5,19 @@ const urlParser = require('url-parse');
 
 const indexFilePath = 'TextPreprocessing/resources/crawler/index.txt';
 const pageRankIndexFilePath = 'PageRank/resources/index.json';
+const pageRankIndexFilePathWithLinks = 'PageRank/resources/indexLinks.json';
 
 let baseUrl;
 const links = {};
 
 const pageRank = () => {
-    getLinksInPages();
+    // getLinksInPages();
+
+    const pageRank = calculatePageRank();
+    const pageRankWithLinks = replaceDocumentNumberByLink(pageRank);
+    fs.writeFile(pageRankIndexFilePathWithLinks, JSON.stringify(pageRankWithLinks), 'utf8', (error, file) => {
+        if (error) throw error;
+    });
 };
 
 const getLinksInPages = () => {
@@ -66,6 +73,61 @@ const collectInternalLinks = ($) => {
     });
 
     return links;
+};
+
+const getPagesWithCurrentLink = (pageRankList, documentNumber) => {
+    return Object.keys(pageRankList).filter(linkNumber => {
+        return pageRankList[linkNumber].includes(parseInt(documentNumber));
+    });
+};
+
+const calculatePageRank = () => {
+    const pageRankList = JSON.parse(fs.readFileSync(pageRankIndexFilePath, 'utf8'));
+    const coefficient = 0.85;
+    let iterateCount = 500;
+
+    const index = {};
+
+    while (iterateCount) {
+        Object.keys(pageRankList).map(documentNumber => {
+            const links = getPagesWithCurrentLink(pageRankList, parseInt(documentNumber));
+            const items = links.map(link => {
+                if (!index[link]) index[link] = 1;
+                return index[link] / pageRankList[link].length;
+            });
+
+            let sum = 0;
+            if (items.length) sum = items.reduce((a, b) => {
+                return a + b;
+            });
+
+            index[documentNumber] = (1 - coefficient) / 100 + coefficient * sum;
+        });
+
+        iterateCount--;
+    }
+
+    return index;
+};
+
+const replaceDocumentNumberByLink = (index) => {
+    Object.keys(index).map(documentNumber => {
+        const linksFilePath = './TextPreprocessing/resources/crawler/index.txt';
+
+        let link = '';
+        const linksFileContent = fs.readFileSync(linksFilePath, 'utf8');
+        const lines = linksFileContent.split('\n');
+        lines.forEach((line, i) => {
+            if (parseInt(documentNumber) === i) {
+                link = line;
+            }
+        });
+
+        index[link] = index[documentNumber];
+        delete index[documentNumber];
+    });
+
+    return index;
 };
 
 module.exports = pageRank;
