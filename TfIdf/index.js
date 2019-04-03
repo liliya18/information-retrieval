@@ -7,58 +7,55 @@ const indexFilePath = 'TfIdf/resources/index.json';
 const documentsCount = 100;
 
 const tfIdf = (query) => {
-    const words = getWords();
-    const dictionary = getDictionary(words);
-    const documentsTfIdf = calculateTfIdf(dictionary);
+    const documents = getDocuments();
+    const tokens = getTokens(documents);
+    const dictionary = getDictionary(tokens);
+    const countVectors = getCountVectors(dictionary, tokens);
+    const countVectorsT = getCountVectorsT(countVectors);
+    const tfVectors = getTfVectors(countVectors);
+    const idfVectors = getIdfVectors(countVectors, countVectorsT);
+    const tfIdfVectors = getTfIdfVectors(tfVectors, idfVectors);
+    const queryCountVector = getQueryCountVector(dictionary, query);
+    const queryTfVector = getQueryTfVector(queryCountVector);
+    const queryIdfVector = getQueryIdfVector(idfVectors);
+    const queryTfIdfVector = getQueryTfIdfVector(queryTfVector, queryIdfVector);
+    const cosineSimilarities = getCosineSimilarities(tfIdfVectors, queryTfIdfVector);
 
-    // createIndexFile(tfIdf);
-
-    const queryTfIdf = getQueryTfIdf(query, dictionary);
-
-    const documentsTfIdfVector = getDocumentsTfIdfVector(documentsTfIdf);
-    const queryTfIdfVector = getQueryTfIdfVector(queryTfIdf);
-
-    const vectorSearchResult = {};
-
-    Object.keys(documentsTfIdfVector).map(document => {
-        vectorSearchResult[document] = calculateCosineSimilarity(documentsTfIdfVector[document], queryTfIdfVector);
+    const index = [];
+    documents.map((document, i) => {
+        index[document.id] = cosineSimilarities[i];
     });
 
-    const replacedResult = replaceDocumentNumberByLink(vectorSearchResult);
-    const result = Object.keys(replacedResult).sort(function (a, b) {
-        return replacedResult[a] - replacedResult[b]
+    const result = Object.keys(index).sort(function (a, b) {
+        return index[a] - index[b]
     }).reverse();
 
-    console.log(result);
+    console.log(result)
 };
 
-/**
- * Запись tfIdf в файл index.json
- * @param content
- */
-const createIndexFile = content => {
-    fs.writeFile(indexFilePath, JSON.stringify(content), 'utf8', (error, file) => {
-        if (error) throw error;
-    });
-};
+const getDocuments = () => {
+    let documents = [];
 
-/**
- * Получение всех слов во всех документах
- * @returns {string[][]}
- */
-const getWords = () => {
     const files = fs.readdirSync(directoryPath);
 
-    return files.map(file => {
-        return fs.readFileSync(directoryPath + file, 'utf-8').split('\t');
+    files.map(file => {
+        const content = fs.readFileSync(directoryPath + file, 'utf-8').split(/\t/g).filter(word => word.length > 0);
+        const id = file.split('.').shift();
+        documents.push({
+            "id": id,
+            "tokens": content
+        });
     });
+
+    return documents;
 };
 
-/**
- * Получение словаря
- * @param words
- * @returns {*}
- */
+const getTokens = documents => {
+    return documents.map(document => {
+        return document.tokens || [];
+    })
+};
+
 const getDictionary = words => {
     return words
         .reduce((acc, words) => {
@@ -77,102 +74,120 @@ const getDictionary = words => {
         });
 };
 
-/**
- * Вычисление TfIdf документов
- * @param dictionary
- */
-const calculateTfIdf = dictionary => {
-    const TfIdf = natural.TfIdf;
-    const tfidf = new TfIdf();
-
-    const files = fs.readdirSync(directoryPath);
-
-    files.map(file => {
-        const content = fs.readFileSync(directoryPath + file, 'utf-8');
-        tfidf.addDocument(content);
+const getCountVectors = (dictionary, words) => {
+    return words.map(tokens => {
+        return dictionary.map(word => {
+            return tokens.reduce((acc, token) => {
+                return token === word ? acc + 1 : acc;
+            }, 0)
+        })
     });
-
-    const index = {};
-
-    dictionary.map(word => {
-        tfidf.tfidfs(word, (i, measure) => {
-            if (!index[word]) index[word] = [];
-            index[word].push(measure);
-        });
-    });
-
-    return index;
 };
 
-/**
- * Вычисление TfIdf запроса
- * @param query
- * @param dictionary
- */
-const getQueryTfIdf = (query, dictionary) => {
-    const stemmingQuery = query.map(query => {
-        return natural.PorterStemmerRu.stem(query);
-    });
-
-    const TfIdf = natural.TfIdf;
-    const tfidf = new TfIdf();
-
-    tfidf.addDocument(stemmingQuery);
-
-    const index = {};
-
-    dictionary.map(word => {
-        tfidf.tfidfs(word, (i, measure) => {
-            if (!index[word]) index[word] = [];
-            index[word].push(measure);
-        });
-    });
-
-    return index;
-};
-
-const getDocumentsTfIdfVector = documentsTfIdf => {
-    const index = {};
-
-    Object.keys(documentsTfIdf).map(word => {
-        for (let i = 0; i < documentsCount; i++) {
-            if (!index[i]) index[i] = [];
-            index[i].push(documentsTfIdf[word][i]);
+const getCountVectorsT = mainCountVectors => {
+    let array = [];
+    mainCountVectors.map((countVector, row, countVectors) => {
+            countVector.map((count, col, countVector) => {
+                    if (row === 0) array.push([]);
+                    array[col].push(count);
+                }
+            );
         }
+    );
+    return array;
+};
+
+const getTfVectors = countVectors => {
+    return countVectors.map(countVector => {
+        return makeTfVector(countVector);
     });
-
-    return index;
 };
 
-const getQueryTfIdfVector = queryTfIdf => {
-    return Object.values(queryTfIdf)
-        .reduce((acc, words) => {
-            return acc.concat(words);
-        }, []);
-};
+const getIdfVectors = (countVectors, countVectorsT) => {
+    let total = documentsCount;
 
-const calculateCosineSimilarity = (vectorA, vectorB) => {
-    const dimensionality = Math.min(vectorA.length, vectorB.length);
-    let dotAB = 0;
-    let dotA = 0;
-    let dotB = 0;
-    let dimension = 0;
-    while (dimension < dimensionality) {
-        const componentA = vectorA[dimension];
-        const componentB = vectorB[dimension];
-        dotAB += componentA * componentB;
-        dotA += componentA * componentA;
-        dotB += componentB * componentB;
-        dimension += 1;
+    if (total === 0) {
+        return countVectors.map(() => {
+            return [];
+        });
     }
 
-    const magnitude = Math.sqrt(dotA * dotB);
+    const idfVector = countVectors[0].map((count, col) => {
+        const inDocCount = countVectorsT[col].reduce((acc, x) => {
+            return acc + (x > 0 ? 1 : 0);
+        }, 0);
+        if (total === 0) return 0;
+        if (inDocCount === 0) return 0;
 
-    return magnitude === 0 ? 0 : dotAB / magnitude;
+        return Math.log(total / inDocCount);
+    });
+    return countVectors.map(() => {
+        return idfVector;
+    });
 };
 
-const replaceDocumentNumberByLink = (vectorSearchResults) => {
-    Object.keys(vectorSearchResults).map(documentNumber => {
+const getTfIdfVectors = (tfVectors, idfVectors) => {
+    return tfVectors.map((tfVector, row) => {
+        return tfVector.map((tf, col) => {
+            return tf * idfVectors[row][col];
+        });
+    });
+};
+
+const getQueryCountVector = (dictionary, query) => {
+    const queryTokens = query.map(query => natural.PorterStemmerRu.stem(query));
+
+    return dictionary.map(word => {
+        return queryTokens.reduce((acc, token) => {
+            return token === word ? acc + 1 : acc;
+        }, 0);
+    });
+};
+
+const getQueryTfVector = queryCountVector => makeTfVector(queryCountVector);
+
+const getQueryIdfVector = idfVectors => idfVectors[0];
+
+const getQueryTfIdfVector = (queryTfVector, queryIdfVector) => {
+    return queryTfVector.map((tf, index) => {
+        return tf * queryIdfVector[index];
+    });
+};
+
+const getCosineSimilarities = (tfIdfVectors, queryTfIdfVector) => {
+    const mag = vector => {
+        return Math.sqrt(vector.reduce((acc, el) => {
+            return acc + (el * el);
+        }, 0));
+    };
+
+    const queryMag = mag(queryTfIdfVector);
+    return tfIdfVectors.map((tfIdfVector) => {
+            const dot = tfIdfVector.reduce((acc, tfIdf, index) => {
+                return acc + (tfIdf * queryTfIdfVector[index]);
+            }, 0);
+            const docMag = mag(tfIdfVector);
+            const mags = queryMag * docMag;
+            return mags === 0 ? 0 : dot / mags;
+        }
+    );
+};
+
+const sum = array => {
+    return array.reduce((acc, x) => {
+        return acc + x;
+    }, 0);
+};
+
+const makeTfVector = countVector => {
+    let total = sum(countVector);
+    return countVector.map((count) => {
+        return total === 0 ? 0 : count / total;
+    });
+};
+
+const replaceDocumentNumberByLink = result => {
+    Object.keys(result).map(documentNumber => {
         const linksFilePath = './TextPreprocessing/resources/crawler/index.txt';
 
         let link = '';
@@ -184,11 +199,11 @@ const replaceDocumentNumberByLink = (vectorSearchResults) => {
             }
         });
 
-        vectorSearchResults[link] = vectorSearchResults[documentNumber];
-        delete vectorSearchResults[documentNumber];
+        result[link] = result[documentNumber];
+        delete result[documentNumber];
     });
 
-    return vectorSearchResults;
+    return result;
 };
 
 module.exports = tfIdf;
