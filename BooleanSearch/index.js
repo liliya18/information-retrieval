@@ -9,7 +9,7 @@ const booleanSearch = keywords => {
 
     const indexFileContent = fs.readFileSync(indexFilePath, 'utf8');
     const lines = indexFileContent.split('\n');
-    lines.map(line => {
+    lines.forEach(line => {
         const wordsLineArray = line.split('\t');
         const word = wordsLineArray[0];
         const wordsLine = wordsLineArray[1] && wordsLineArray[1].split(' ');
@@ -19,7 +19,7 @@ const booleanSearch = keywords => {
     const stemmedKeywords = stemKeywords(keywords);
 
     let result = [];
-    stemmedKeywords.map(keyword => {
+    stemmedKeywords.forEach(keyword => {
         if (index[keyword]) {
             index[keyword].forEach((item, index) => {
                 if (item === '1') {
@@ -34,7 +34,7 @@ const booleanSearch = keywords => {
 
 const stemKeywords = keywords => {
     let stemWords = [];
-    keywords.map(keyword => {
+    keywords.forEach(keyword => {
         stemWords.push(natural.PorterStemmerRu.stem(keyword));
     });
     return stemWords;
@@ -62,7 +62,7 @@ const getLink = (numbers) => {
     const lines = linksFileContent.split('\n');
     let searchResult = [];
     lines.forEach((line, i) => {
-        numbers.map(number => {
+        numbers.forEach(number => {
             if (i === parseInt(number)) {
                 searchResult.push(lines[i]);
             }

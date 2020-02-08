@@ -78,7 +78,7 @@ const saveText = (name, text) => {
     });
 
     const textArray = trimmedText.split(' ');
-    textArray.map(value => {
+    textArray.forEach(value => {
         let stemmingWord = natural.PorterStemmerRu.stem(value);
         stemmingWord = `${stemmingWord}\t`;
         fs.appendFile(`${stemmingTextsFolderPath}/${name}.txt`, stemmingWord, (error, file) => {

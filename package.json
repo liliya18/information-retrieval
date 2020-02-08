@@ -10,10 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.2",
+    "cheerio": "^1.0.0-rc.3",
     "natural": "^0.6.3",
     "request": "^2.88.0",
     "sync-request": "^6.1.0",
-    "url-parse": "^1.4.4"
+    "url-parse": "^1.4.7"
   }
 }

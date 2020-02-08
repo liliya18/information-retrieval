@@ -26,12 +26,12 @@ const getLinksInPages = () => {
 
     const indexFileContent = fs.readFileSync(indexFilePath, 'utf8');
     const lines = indexFileContent.split('\n');
-    lines.map(line => {
+    lines.forEach(line => {
         if (line === '') return;
         visitPage(line);
     });
 
-    Object.keys(links).map(indexLink => {
+    Object.keys(links).forEach(indexLink => {
         const index = lines.indexOf(indexLink);
         if (index !== -1) {
             links[index] = links[indexLink];
@@ -39,7 +39,7 @@ const getLinksInPages = () => {
         }
     });
 
-    Object.keys(links).map(indexLink => {
+    Object.keys(links).forEach(indexLink => {
         links[indexLink].forEach((link, i) => {
             const index = lines.indexOf(link);
             if (index !== -1) {
@@ -89,7 +89,7 @@ const calculatePageRank = () => {
     const index = {};
 
     while (iterateCount) {
-        Object.keys(pageRankList).map(documentNumber => {
+        Object.keys(pageRankList).forEach(documentNumber => {
             const links = getPagesWithCurrentLink(pageRankList, parseInt(documentNumber));
             const items = links.map(link => {
                 if (!index[link]) index[link] = 1;
@@ -111,7 +111,7 @@ const calculatePageRank = () => {
 };
 
 const replaceDocumentNumberByLink = (index) => {
-    Object.keys(index).map(documentNumber => {
+    Object.keys(index).forEach(documentNumber => {
         const linksFilePath = './TextPreprocessing/resources/crawler/index.txt';
 
         let link = '';

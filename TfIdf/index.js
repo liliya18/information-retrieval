@@ -22,7 +22,7 @@ const tfIdf = (query) => {
     const cosineSimilarities = getCosineSimilarities(tfIdfVectors, queryTfIdfVector);
 
     const index = [];
-    documents.map((document, i) => {
+    documents.forEach((document, i) => {
         index[document.id] = cosineSimilarities[i];
     });
 
@@ -38,7 +38,7 @@ const getDocuments = () => {
 
     const files = fs.readdirSync(directoryPath);
 
-    files.map(file => {
+    files.forEach(file => {
         const content = fs.readFileSync(directoryPath + file, 'utf-8').split(/\t/g).filter(word => word.length > 0);
         const id = file.split('.').shift();
         documents.push({
@@ -86,7 +86,7 @@ const getCountVectors = (dictionary, words) => {
 
 const getCountVectorsT = mainCountVectors => {
     let array = [];
-    mainCountVectors.map((countVector, row, countVectors) => {
+    mainCountVectors.forEach((countVector, row, countVectors) => {
             countVector.map((count, col, countVector) => {
                     if (row === 0) array.push([]);
                     array[col].push(count);
@@ -187,7 +187,7 @@ const makeTfVector = countVector => {
 };
 
 const replaceDocumentNumberByLink = result => {
-    Object.keys(result).map(documentNumber => {
+    Object.keys(result).forEach(documentNumber => {
         const linksFilePath = './TextPreprocessing/resources/crawler/index.txt';
 
         let link = '';

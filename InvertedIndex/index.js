@@ -11,7 +11,7 @@ const invertedIndex = () => {
         const content = fs.readFileSync(directoryPath + file, 'utf-8');
         const fileName = file.split('.')[0];
         const words = content.split('\t');
-        words.map(word => {
+        words.forEach(word => {
             if (word === '') {
                 return;
             }
@@ -27,12 +27,12 @@ const invertedIndex = () => {
 
 const createIndexFile = content => {
     words = Object.keys(content);
-    words.map(word => {
+    words.forEach(word => {
         const row = word + '\t' + content[word].join(' ') + '\n';
         fs.appendFile(indexFilePath, row, 'utf8', (error, file) => {
             if (error) throw error;
         });
     })
-}
+};
 
 module.exports = invertedIndex;
